@@ -61,15 +61,19 @@ let reaction =
 (* View: database *)
 let database = 
   let database_kw = "aliases"
+                  | "automount"
+                  | "bootparams"
                   | "ethers"
                   | "group"
                   | "hosts"
                   | "netgroup"
+                  | "netmasks"
                   | "networks"
                   | "passwd"
                   | "protocols"
                   | "publickey"
                   | "rpc"
+                  | "sendmailvars"
                   | "services"
                   | "shadow"
     in [ label "database" . store database_kw
