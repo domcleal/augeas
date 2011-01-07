@@ -11,11 +11,15 @@ module Fstab =
   let comment = Util.comment
   let empty   = Util.empty
 
-  let word    = Rx.word
+  let word    = Rx.word - /"/
   let spec    = /[^,# \n\t][^ \n\t]*/
+  let quoted  = /[^"\n]*/
+  let quoted_opt_val = Util.del_str "\"" . store word . Util.del_str "\""
+
+  let opt_val = store word | quoted_opt_val
 
   let comma_sep_list (l:string) =
-    let value = [ label "value" . Util.del_str "=" . store word ] in
+    let value = [ label "value" . Util.del_str "=" . opt_val ] in
       let lns = [ label l . store word . value? ] in
          Build.opt_list lns comma
 
