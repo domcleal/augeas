@@ -87,6 +87,7 @@ lens_tests =			\
   lens-sysconfig.sh		\
   lens-syslog.sh		\
   lens-sysctl.sh		\
+  lens-system.sh		\
   lens-vsftpd.sh		\
   lens-webmin.sh		\
   lens-wine.sh			\
