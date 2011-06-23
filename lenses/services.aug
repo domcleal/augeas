@@ -73,7 +73,7 @@ let alias = [ label "alias" . store word_re ]
  *   TODO: make sure a space is added before a comment on new nodes
  *)
 let record = [ label "service-name" . store word_re . sep_spc . port
-                 . del "/" "/" . protocol . ( sep_spc . alias )*
+                 . (del "/" "/" . protocol)? . ( sep_spc . alias )*
                  . comment_or_eol ]
 
 (* View: lns
