@@ -531,6 +531,14 @@ static const struct command_def cmd_mv_def = {
     "all  its  missing\n ancestors are created."
 };
 
+static const struct command_def cmd_move_def = {
+    .name = "move",
+    .opts = cmd_mv_opts,
+    .handler = cmd_mv,
+    .synopsis = "move a subtree (alias of 'mv')",
+    .help = "See help for 'mv'."
+};
+
 static void cmd_set(struct command *cmd) {
     const char *path = arg_value(cmd, "path");
     const char *val = arg_value(cmd, "value");
@@ -888,6 +896,14 @@ static const struct command_def cmd_ins_def = {
     "PATH into the\n tree. WHERE must be either 'before' or 'after'."
 };
 
+static const struct command_def cmd_insert_def = {
+    .name = "insert",
+    .opts = cmd_ins_opts,
+    .handler = cmd_ins,
+    .synopsis = "insert new node before/after and existing node (alias of 'ins')",
+    .help = "See help for 'ins'."
+};
+
 static const struct command_def const *commands[] = {
     &cmd_quit_def,
     &cmd_clear_def,
@@ -895,10 +911,12 @@ static const struct command_def const *commands[] = {
     &cmd_defvar_def,
     &cmd_get_def,
     &cmd_ins_def,
+    &cmd_insert_def,
     &cmd_load_def,
     &cmd_ls_def,
     &cmd_match_def,
     &cmd_mv_def,
+    &cmd_move_def,
     &cmd_print_def,
     &cmd_rm_def,
     &cmd_save_def,
