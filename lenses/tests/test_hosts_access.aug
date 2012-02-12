@@ -9,9 +9,27 @@ test Hosts_Access.lns get multi_daemon =
     { "client" = "10.234." }
   }
 
+let multi_daemon_spc = "sshd sendmail : 10.234.\n"
+
+test Hosts_Access.lns get multi_daemon_spc =
+  { "1"
+    { "process" = "sshd" }
+    { "process" = "sendmail" }
+    { "client" = "10.234." }
+  }
+
 let multi_client = "sshd: 10.234. , 192.168.\n"
 
 test Hosts_Access.lns get multi_client =
+  { "1"
+    { "process" = "sshd" }
+    { "client" = "10.234." }
+    { "client" = "192.168." }
+  }
+
+let multi_client_spc = "sshd: 10.234. 192.168.\n"
+
+test Hosts_Access.lns get multi_client_spc =
   { "1"
     { "process" = "sshd" }
     { "client" = "10.234." }
