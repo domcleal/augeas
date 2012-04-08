@@ -63,7 +63,7 @@ FileUsage = 1
 # Driver from the MyODBC package
 # Setup from the unixODBC package
 Description  = ODBC for MySQL
-Driver   = /usr/lib64/libmyodbc3.so#note the path
+Driver   = /usr/lib64/libmyodbc3.so # note the path
 Setup    = /usr/lib/libodbcmyS.so
 FileUsage  = 1
 "

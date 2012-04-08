@@ -118,7 +118,7 @@ gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-remi
   test Yum.lns put cont after
       set "main/gpgcheck" "1"
   =
-    cont . "gpgcheck=1\n"
+    cont . "gpgcheck=1   \n"
 
   (* We are actually stricter than yum in checking syntax. The yum.conf *)
   (* man page mentions that it is illegal to have multiple baseurl keys *)

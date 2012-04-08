@@ -23,8 +23,8 @@ modules = auth_denyall
 [serializes]
 settings = serializer_catalog
 
-distro=serializer_catalog
-repo=serializer_catalog
+distro = serializer_catalog
+repo = serializer_catalog
 [authentication]
 modules = auth_denyall
 "

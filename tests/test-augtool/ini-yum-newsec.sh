@@ -12,4 +12,4 @@ diff='--- /etc/yum.conf
  # PUT YOUR REPOS HERE OR IN separate files named file.repo
  # in /etc/yum.repos.d
 +[other]
-+newparam=newval'
++newparam = newval'

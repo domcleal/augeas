@@ -225,7 +225,7 @@ daemon.info                                     /var/log/cvsupd.log
 	  set "/entry[1]/selector/facility" "daemon" ;
 	  set "/entry[1]/selector/level" "info" ;
 	  set "/entry[1]/action/file" "/foo"
-	  = "daemon.info /foo\n*.*\t/var\n"
+	  = "daemon.info /foo\n*.* /var\n"
 
 	(* inserting an entry after *)
 	test Syslog.lns put "*.* /var\n" after
@@ -233,7 +233,7 @@ daemon.info                                     /var/log/cvsupd.log
 	  set "/entry[2]/selector/facility" "daemon" ;
 	  set "/entry[2]/selector/level" "info" ;
 	  set "/entry[2]/action/file" "/foo"
-	  = "*.* /var\ndaemon.info\t/foo\n"
+	  = "*.* /var\ndaemon.info /foo\n"
 
 	(* insert sync on a file *)
 	test Syslog.lns put "*.* /var\n" after

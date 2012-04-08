@@ -29,5 +29,5 @@ test lns put conf after
 tomcat.port = 99
 tomcat.application.name=testapp
     tomcat.application.description=my test application
-tomcat.application.host=foo.network.com
+    tomcat.application.host=foo.network.com
 "

@@ -14,4 +14,4 @@ module Pass_array =
   let lns = [ key /[a-z]+/ . del "=" "=" . array ]
 
   test lns put "var=(v1 v2)" after
-    set "var/3" "v3" = "var=(v1 v2\tv3)"
+    set "var/3" "v3" = "var=(v1 v2 v3)"

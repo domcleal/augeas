@@ -178,7 +178,7 @@ test Logrotate.lns put "/file {\n size=5M\n}\n" after
   =
 "/file {
  size=5M
-\tprerotate
+ prerotate
 \tfoobar
 \tendscript\n}\n"
 
@@ -187,7 +187,7 @@ test Logrotate.lns put "/file {\n size=5M\n}\n" after
   =
 "/file {
  size=5M
-\tprerotate
+ prerotate
 \tfoobar\n
 \tendscript\n}\n"
 

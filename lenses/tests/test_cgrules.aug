@@ -28,5 +28,5 @@ test Cgrules.lns put conf after
 = "#cgrules test configuration file
 poooeter       cpu             test3/
 %              memory          memtest/
-% devices newtest/
+%          devices          newtest/
 "

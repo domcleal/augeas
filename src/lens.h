@@ -1,7 +1,7 @@
 /*
  * lens.h: Repreentation of lenses
  *
- * Copyright (C) 2007-2011 David Lutterkort
+ * Copyright (C) 2007-2012 David Lutterkort
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -95,6 +95,7 @@ struct lens {
              */
             struct regexp *regexp; /* L_STORE, L_KEY */
             struct string *string; /* L_VALUE, L_LABEL, L_SEQ, L_COUNTER */
+            char *last;            /* L_DEL */
         };
         /* Combinators */
         struct lens *child;         /* L_SUBTREE, L_STAR, L_MAYBE, L_SQUARE */

@@ -32,7 +32,7 @@ LOADER_TYPE=\"grub\"
   (* append a value *)
   test Shellvars_list.lns put "VAR=\"test1\t  \ntest2\"\n" after
     set "VAR/value[last()+1]" "test3"
-    = "VAR=\"test1\t  \ntest2 test3\"\n"
+    = "VAR=\"test1\t  \ntest2\t  \ntest3\"\n"
 
   (* in double quoted lists, single quotes and escaped values are allowed *)
   test Shellvars_list.lns get "VAR=\"test'1 test2 a\ \\\"longer\\\"\ test\"\n" =
@@ -61,7 +61,7 @@ FAILSAVE_APPEND=\"console=ttyS0\"
   (* leading/trailing) *)
   test Shellvars_list.lns put "VAR=' \t test1\t  \ntest2  '\n" after
     set "VAR/value[last()+1]" "test3"
-    = "VAR=' \t test1\t  \ntest2 test3  '\n"
+    = "VAR=' \t test1\t  \ntest2\t  \ntest3  '\n"
 
   (* change quotes (leading/trailing whitespaces are lost *)
   test Shellvars_list.lns put "VAR=' \t test1\t  \ntest2  '\n" after

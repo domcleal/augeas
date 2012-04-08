@@ -158,7 +158,7 @@ test Debctrl.src_entries
      after set "/Uploaders/4" "baz@bar"
    =  "Uploaders: foo@bar, Dominique Dumont <dominique.dumont@xx.yyy>,\n"
    . "  gregor herrmann <gregoa@xxx.yy>,\n"
-   . " baz@bar\n"
+   . "  baz@bar\n"
 
 test Debctrl.lns put (source."\nPackage: test\nDescription: foobar\n")
   after

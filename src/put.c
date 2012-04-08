@@ -1,7 +1,7 @@
 /*
  * put.c:
  *
- * Copyright (C) 2007-2011 David Lutterkort
+ * Copyright (C) 2007-2012 David Lutterkort
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -469,10 +469,12 @@ static void put_del(ATTRIBUTE_UNUSED struct lens *lens, struct state *state) {
     assert(state->skel != NULL);
     assert(state->skel->tag == L_DEL);
     if (lens->string != NULL) {
-    fprintf(state->out, "%s", state->skel->text);
+        fprintf(state->out, "%s", state->skel->text);
+        lens->last = state->skel->text;
     } else {
-    /* L_DEL with NULL string: replicate the current key */
+        /* L_DEL with NULL string: replicate the current key */
         fprintf(state->out, "%s", state->key);
+        lens->last = NULL;
     }
 }
 
@@ -661,7 +663,9 @@ static void create_subtree(struct lens *lens, struct state *state) {
 
 static void create_del(struct lens *lens, struct state *state) {
     assert(lens->tag == L_DEL);
-    if (lens->string != NULL) {
+    if (lens->last != NULL) {
+        print_escaped_chars(state->out, lens->last);
+    } else if (lens->string != NULL) {
         print_escaped_chars(state->out, lens->string->str);
     } else {
         /* L_DEL with NULL string: replicate the current key */
@@ -785,6 +789,46 @@ static void create_lens(struct lens *lens, struct state *state) {
     }
 }
 
+/* Clear any state held in the lenses themselves */
+static void clear_lens_state(struct lens *lens) {
+    switch(lens->tag) {
+    case L_DEL:
+        /* Last deleted string, memory owned by state */
+        if (lens->last != NULL) {
+            lens->last = NULL;
+        }
+        break;
+    case L_CONCAT:
+    case L_UNION:
+        for (int i=0; i < lens->nchildren; i++) {
+            clear_lens_state(lens->children[i]);
+        }
+        break;
+    case L_SUBTREE:
+    case L_STAR:
+    case L_MAYBE:
+    case L_SQUARE:
+        clear_lens_state(lens->child);
+        break;
+    case L_REC:
+        if (lens->rec_internal == 0) {
+            clear_lens_state(lens->child);
+        }
+        break;
+    case L_STORE:
+    case L_KEY:
+    case L_LABEL:
+    case L_VALUE:
+    case L_SEQ:
+    case L_COUNTER:
+        /* Nothing to do */
+        break;
+    default:
+        assert(0);
+        break;
+    }
+}
+
 void lns_put(FILE *out, struct lens *lens, struct tree *tree,
              const char *text, struct lns_error **err) {
     struct state state;
@@ -811,6 +855,7 @@ void lns_put(FILE *out, struct lens *lens, struct tree *tree,
     state.key = tree->label;
     put_lens(lens, &state);
 
+    clear_lens_state(lens);
     free(state.path);
     free_split(state.split);
     free_skel(state.skel);

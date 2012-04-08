@@ -83,7 +83,7 @@ test Access.lns put conf after
 + : ALL EXCEPT john @wheel : ALL EXCEPT LOCAL .win.tue.nl
 # No spaces
 +:root:.example.com
-- : ALL : ALL
+-:ALL:ALL
 "
 
 (* Test: Access.lns

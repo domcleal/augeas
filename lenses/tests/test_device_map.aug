@@ -30,5 +30,5 @@ module Test_device_map =
 (hd0,a)   /dev/sda1
 (0x80)    /dev/sda
 (128)     /dev/sda
-(hd2,1)\t/dev/sdb1
+(hd2,1)     /dev/sdb1
 "

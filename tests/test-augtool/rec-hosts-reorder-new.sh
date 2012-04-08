@@ -28,4 +28,4 @@ diff='--- /etc/hosts
  #172.31.122.254   granny.watzmann.net granny puppet
  #172.31.122.1     galia.watzmann.net galia
  172.31.122.14   orange.watzmann.net orange
-+127.0.0.1\tlocalhost.localdomain localhost galia.watzmann.net galia'
++127.0.0.1   localhost.localdomain localhost galia.watzmann.net galia'
