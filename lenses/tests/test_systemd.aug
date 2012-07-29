@@ -119,6 +119,7 @@ ExecReload=/bin/kill -USR1 $MAINPID
 ExecStart=/sbin/rpcbind -w
 ExecStartPost=/bin/systemctl disable firstboot-graphical.service firstboot-text.service
 ExecStartPre=/sbin/modprobe -qa $SUPPORTED_DRIVERS
+ExecStartPre=-/bin/echo -e 'Welcome to rescue mode! Type \"systemctl default\" or ^D to enter default mode.\\nType \"journalctl\" to view system logs. Type \"systemctl reboot\" to reboot.'
 ExecStop=/usr/sbin/aiccu stop
 ExecStopPost=-/bin/systemctl poweroff
 ExecStopPost=@/bin/systemctl poweroff
@@ -158,6 +159,14 @@ test Systemd.lns get exec =
       { "arguments"
         { "1" = "-qa" }
         { "2" = "$SUPPORTED_DRIVERS" }
+      }
+    }
+    { "ExecStartPre"
+      { "ignoreexit" }
+      { "command" = "/bin/echo" }
+      { "arguments"
+        { "1" = "-e" }
+        { "2" = "'Welcome to rescue mode! Type \"systemctl default\" or ^D to enter default mode.\\nType \"journalctl\" to view system logs. Type \"systemctl reboot\" to reboot.'" }
       }
     }
     { "ExecStop"
