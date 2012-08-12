@@ -784,6 +784,8 @@ let realms_str = "[realms]
         admin_server = KERBEROS.MIT.EDU
         default_domain = MIT.EDU
         database_module = ldapconf
+
+        # test
         v4_instance_convert = {
              mit = mit.edu
              lithium = lithium.lcs.mit.edu
@@ -797,6 +799,8 @@ test Krb5.lns get realms_str =
       { "admin_server" = "KERBEROS.MIT.EDU" }
       { "default_domain" = "MIT.EDU" }
       { "database_module" = "ldapconf" }
+      { }
+      { "#comment" = "test" }
       { "v4_instance_convert"
         { "mit" = "mit.edu" }
         { "lithium" = "lithium.lcs.mit.edu" } }
@@ -937,3 +941,63 @@ test Krb5.lns get pam_str =
       { "renew_lifetime" = "36000" }
       { "forwardable" = "true" }
       { "krb4_convert" = "false" } }
+
+(* Ticket #274 - multiple *enctypes values *)
+let multiple_enctypes = "[libdefaults]
+permitted_enctypes = arcfour-hmac-md5 arcfour-hmac des3-cbc-sha1 des-cbc-md5 des-cbc-crc aes128-cts
+default_tgs_enctypes = des3-cbc-sha1 des-cbc-md5
+default_tkt_enctypes = des-cbc-md5
+"
+
+test Krb5.lns get multiple_enctypes =
+  { "libdefaults"
+    { "permitted_enctypes"
+      { "1" = "arcfour-hmac-md5" }
+      { "2" = "arcfour-hmac" }
+      { "3" = "des3-cbc-sha1" }
+      { "4" = "des-cbc-md5" }
+      { "5" = "des-cbc-crc" }
+      { "6" = "aes128-cts" }
+    }
+    { "default_tgs_enctypes"
+      { "1" = "des3-cbc-sha1" }
+      { "2" = "des-cbc-md5" }
+    }
+    { "default_tkt_enctypes"
+      { "1" = "des-cbc-md5" }
+    }
+  }
+
+(* Ticket #274 - v4_name_convert subsection *)
+let v4_name_convert = "[realms]
+ EXAMPLE.COM = {
+  kdc = kerberos.example.com:88
+  admin_server = kerberos.example.com:749
+  default_domain = example.com
+  ticket_lifetime = 12h
+  v4_name_convert = {
+     host = {
+       rcmd = host
+     }
+  }
+ }
+"
+
+test Krb5.lns get v4_name_convert =
+  { "realms"
+    { "realm" = "EXAMPLE.COM"
+      { "kdc" = "kerberos.example.com:88" }
+      { "admin_server" = "kerberos.example.com:749" }
+      { "default_domain" = "example.com" }
+      { "ticket_lifetime" = "12h" }
+      { "v4_name_convert"
+        { "host"
+          { "rcmd" = "host" }
+        }
+      }
+    }
+  }
+
+(* Ticket #288: semicolons for comments *)
+test Krb5.lns get "; AD  : This Kerberos configuration is for CERN's Active Directory realm.\n" =
+    { "#comment" = "AD  : This Kerberos configuration is for CERN's Active Directory realm." }
