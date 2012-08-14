@@ -1,6 +1,6 @@
 module Test_krb5 =
 
-  (* Krb5.conf from Fermi labs *)
+  (* Krb5.conf from Fermilab *)
   let fermi_str = "###
 ### This krb5.conf template is intended for use with Fermi
 ### Kerberos v1_2 and later.  Earlier versions may choke on the
@@ -15,6 +15,7 @@ module Test_krb5 =
 	ccache_type = 4
 	default_tgs_enCtypes = des-cbc-crc
 	default_tkt_enctypes = des-cbc-crc
+	permitted_enctypes = des-cbc-crc des3-cbc-sha1
 	default_lifetime = 7d
 	renew_lifetime = 7d
 	autologin = true
@@ -22,6 +23,11 @@ module Test_krb5 =
 	forwardable = true
 	renewable = true
 	encrypt = true
+        v4_name_convert = {
+                host = {
+                        rcmd = host
+                        }
+                }
 
 [realms]
 	FNAL.GOV = {
@@ -80,6 +86,11 @@ module Test_krb5 =
 		default_domain = cern.ch
 		kpasswd_server = afskrb5m.cern.ch
 		admin_server = afskrb5m.cern.ch
+		v4_name_convert = {
+                        host = {
+                                rcmd = host
+                        }
+                }
 	}
 
 [instancemapping]
@@ -271,8 +282,16 @@ test Krb5.lns get fermi_str =
     { "ticket_lifetime" = "1560m" }
     { "default_realm" = "FNAL.GOV" }
     { "ccache_type" = "4" }
-    { "default_tgs_enCtypes" = "des-cbc-crc" }
-    { "default_tkt_enctypes" = "des-cbc-crc" }
+    { "default_tgs_enCtypes"
+      { "1" = "des-cbc-crc" }
+    }
+    { "default_tkt_enctypes"
+      { "1" = "des-cbc-crc" }
+    }
+    { "permitted_enctypes"
+      { "1" = "des-cbc-crc" }
+      { "2" = "des3-cbc-sha1" }
+    }
     { "default_lifetime" = "7d" }
     { "renew_lifetime" = "7d" }
     { "autologin" = "true" }
@@ -280,6 +299,11 @@ test Krb5.lns get fermi_str =
     { "forwardable" = "true" }
     { "renewable" = "true" }
     { "encrypt" = "true" }
+    { "v4_name_convert"
+      { "host"
+        { "rcmd" = "host" }
+      }
+    }
     {  } }
   { "realms"
     { "realm" = "FNAL.GOV"
@@ -330,7 +354,13 @@ test Krb5.lns get fermi_str =
       { "kdc" = "afsdb1.cern.ch" }
       { "default_domain" = "cern.ch" }
       { "kpasswd_server" = "afskrb5m.cern.ch" }
-      { "admin_server" = "afskrb5m.cern.ch" } }
+      { "admin_server" = "afskrb5m.cern.ch" }
+      { "v4_name_convert"
+        { "host"
+          { "rcmd" = "host" }
+        }
+      }
+    }
     { } }
   { "instancemapping"
     { "afs"
