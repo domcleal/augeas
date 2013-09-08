@@ -20,6 +20,7 @@ $IncludeConfig /etc/rsyslog.d/*.conf
 authpriv.*                                              /var/log/secure
 *.emerg                                                 *
 *.*    @2.7.4.1
+*.*    @@2.7.4.1
 "
 
 (* Test: Rsyslog.lns *)
@@ -83,6 +84,16 @@ test Rsyslog.lns get conf =
       { "level" = "*" }
     }
     { "action"
+      { "hostname" = "2.7.4.1" }
+    }
+  }
+  { "entry"
+    { "selector"
+      { "facility" = "*" }
+      { "level" = "*" }
+    }
+    { "action"
+      { "protocol" = "@@" }
       { "hostname" = "2.7.4.1" }
     }
   }
