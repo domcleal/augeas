@@ -86,7 +86,6 @@ test Rsyslog.lns get conf =
       { "level" = "*" }
     }
     { "action"
-      { "protocol" = "@" }
       { "hostname" = "2.7.4.1" }
     }
   }
