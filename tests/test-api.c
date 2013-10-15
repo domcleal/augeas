@@ -479,14 +479,14 @@ static void testToXml(CuTest *tc) {
     value = xmlGetProp(xmldoc, BAD_CAST "match");
     CuAssertStrEquals(tc, "/files/etc/passwd", (const char*)value);
 
-    xmldoc = xmlFirstElementChild(xmldoc);
+    xmldoc = xmldoc->children;
     value = xmlGetProp(xmldoc, BAD_CAST "label");
     CuAssertStrEquals(tc, "passwd", (const char*)value);
 
     value = xmlGetProp(xmldoc, BAD_CAST "path");
     CuAssertStrEquals(tc, "/files/etc/passwd", (const char*)value);
 
-    xmldoc = xmlFirstElementChild(xmldoc);
+    xmldoc = xmldoc->children;
     value = xmlGetProp(xmldoc, BAD_CAST "label");
     CuAssertStrEquals(tc, "root", (const char*)value);
 
@@ -495,7 +495,7 @@ static void testToXml(CuTest *tc) {
     CuAssertRetSuccess(tc, r);
     r = aug_to_xml(aug, ".", &xmldoc, 0);
     CuAssertRetSuccess(tc, r);
-    xmldoc = xmlFirstElementChild(xmldoc);
+    xmldoc = xmldoc->children;
     value = xmlGetProp(xmldoc, BAD_CAST "label");
     CuAssertStrEquals(tc, "passwd", (const char*)value);
 
