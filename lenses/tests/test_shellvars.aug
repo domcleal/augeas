@@ -435,6 +435,10 @@ esac\n" =
     { "#comment" = "foo" }
     { "foo" = "bar" }
 
+  (* Export of multiple variables, RHBZ#1033795 *)
+  test lns get "export TestVar1 TestVar2\n" =
+    { "@export" = "TestVar1 TestVar2" }
+
 (* Local Variables: *)
 (* mode: caml       *)
 (* End:             *)

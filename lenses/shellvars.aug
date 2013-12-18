@@ -64,7 +64,7 @@ module Shellvars =
 
   let var_action (name:string) =
     [ Util.indent . xchgs name ("@" . name) . Util.del_ws_spc
-    . store (key_re | matching_re) . comment_or_eol ]
+    . store ((key_re . (/[ \t]+/ . key_re)*) | matching_re) . comment_or_eol ]
 
   let unset = var_action "unset"
   let bare_export = var_action "export"
