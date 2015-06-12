@@ -1,6 +1,6 @@
-module Test_dhcpd =
+module Test_dhcpd_140 =
 
-let lns = Dhcpd.lns
+let lns = Dhcpd_140.lns
 
 let conf = "#
 # Sample configuration file for ISC dhcpd for Debian
@@ -27,6 +27,9 @@ max-lease-time 7200;
 # If this DHCP server is the official DHCP server for the local
 # network, the authoritative directive should be uncommented.
 authoritative;
+
+allow booting;
+allow bootp;
 
 # Use this to send dhcp log messages to a different log file (you also
 # have to hack syslog.conf to complete the redirection).
@@ -179,15 +182,44 @@ fixed-address 10.1.1.1;}}" =
     }
   }
 
-test Dhcpd.stmt_secu get "allow members of \"foo\";" =  { "allow-members-of" = "foo" }
-test Dhcpd.stmt_option get "option voip-boot-server code 66 = string;" =
+test lns get "group fan-tas_tic { }" =
+  { "group" = "fan-tas_tic" }
+
+test Dhcpd_140.stmt_secu get "allow members of \"foo\";" =  { "allow-members-of" = "foo" }
+test Dhcpd_140.stmt_secu get "allow booting;" =  { "allow" = "booting" }
+test Dhcpd_140.stmt_secu get "allow bootp;" =  { "allow" = "bootp" }
+test Dhcpd_140.stmt_option get "option voip-boot-server code 66 = string;" =
   { "rfc-code"
     { "label" = "voip-boot-server" }
     { "code" = "66" }
     { "type" = "string" }
   }
 
-test Dhcpd.lns get "authoritative;
+test Dhcpd_140.stmt_option get "option special-option code 25 = array of string;" =
+  { "rfc-code"
+    { "label" = "special-option" }
+    { "code" = "25" }
+    { "type" = "array of string" }
+  }
+
+test Dhcpd_140.stmt_option get "option special-option code 25 = integer 32;" =
+  { "rfc-code"
+    { "label" = "special-option" }
+    { "code" = "25" }
+    { "type" = "integer 32" }
+  }
+
+
+test Dhcpd_140.stmt_option get "option special-option code 25 = array of integer 32;" =
+  { "rfc-code"
+    { "label" = "special-option" }
+    { "code" = "25" }
+    { "type" = "array of integer 32" }
+  }
+
+
+
+test Dhcpd_140.lns get "authoritative;
 log-facility local7;
 ddns-update-style none;
 default-lease-time 21600;
@@ -216,7 +248,7 @@ option voip-vlan-id code 128 = string;
   }
 
 
-test Dhcpd.lns get "
+test Dhcpd_140.lns get "
 option domain-name-servers 10.1.1.1, 10.11.2.1, 10.1.3.1;
 next-server 10.1.1.1;
 
@@ -242,7 +274,7 @@ failover peer \"redondance01\" {
     }
   }
   { "next-server" = "10.1.1.1" }
-  { "failover peer" = "\"redondance01\""
+  { "failover peer" = "redondance01"
     { "primary" }
     { "address" = "10.1.1.1" }
     { "port" = "647" }
@@ -259,7 +291,27 @@ failover peer \"redondance01\" {
     { "load balance max seconds" = "3" }
   }
 
-test Dhcpd.lns get "
+
+(* test get and put for record types *)
+let record_test = "option test_records code 123 = { string, ip-address, integer 32, ip6-address, domain-list };"
+
+test Dhcpd_140.lns get record_test =
+ { "rfc-code"
+   { "label" = "test_records" }
+   { "code" = "123" }
+     { "record"
+        { "1" = "string" }
+        { "2" = "ip-address" }
+        { "3" = "integer 32" }
+        { "4" = "ip6-address" }
+        { "5" = "domain-list" }
+     }
+ }
+
+test Dhcpd_140.lns put record_test after set "/rfc-code[1]/code" "124" = 
+  "option test_records code 124 = { string, ip-address, integer 32, ip6-address, domain-list };"
+
+test Dhcpd_140.lns get "
 option CallManager code 150 = ip-address;
 option slp-directory-agent true 10.1.1.1, 10.2.2.2;
 option slp-service-scope true \"SLP-GLOBAL\";
@@ -295,34 +347,34 @@ option nds-tree-name \"EXAMPLE\";
   }
 
 
-test Dhcpd.lns get "option voip-vlan-id \"VLAN=1234;\";" =
+test Dhcpd_140.lns get "option voip-vlan-id \"VLAN=1234;\";" =
   { "option"
     { "voip-vlan-id"
       { "arg" = "VLAN=1234;" }
     }
   }
 
-test Dhcpd.lns get "option domain-name \"x.example.com y.example.com z.example.com\";" =
+test Dhcpd_140.lns get "option domain-name \"x.example.com y.example.com z.example.com\";" =
   { "option"
     { "domain-name"
       { "arg" = "x.example.com y.example.com z.example.com" }
     }
   }
 
-test Dhcpd.lns get "include \"/etc/dhcpd.master\";" =
+test Dhcpd_140.lns get "include \"/etc/dhcpd.master\";" =
   { "include" = "/etc/dhcpd.master" }
 
-test Dhcpd.lns put "\n" after set "/include" "/etc/dhcpd.master" =
+test Dhcpd_140.lns put "\n" after set "/include" "/etc/dhcpd.master" =
   "\ninclude \"/etc/dhcpd.master\";\n"
 
-test Dhcpd.fct_args get "(option dhcp-client-identifier, 1, 3)" =
+test Dhcpd_140.fct_args get "(option dhcp-client-identifier, 1, 3)" =
   { "args"
     { "arg" = "option dhcp-client-identifier" }
     { "arg" = "1" }
     { "arg" = "3" }
   }
 
-test Dhcpd.stmt_match get "match if substring (option dhcp-client-identifier, 1, 3) = \"RAS\";" =
+test Dhcpd_140.stmt_match get "match if substring (option dhcp-client-identifier, 1, 3) = \"RAS\";" =
   { "match"
     { "function" = "substring"
       { "args"
@@ -334,7 +386,26 @@ test Dhcpd.stmt_match get "match if substring (option dhcp-client-identifier, 1,
     { "value" = "RAS" }
   }
 
-test Dhcpd.lns get "match pick-first-value (option dhcp-client-identifier, hardware);" =
+test Dhcpd_140.stmt_match get "match if suffix (option dhcp-client-identifier, 4) = \"RAS\";" =
+  { "match"
+    { "function" = "suffix"
+      { "args"
+        { "arg" = "option dhcp-client-identifier" }
+        { "arg" = "4" }
+      }
+    }
+    { "value" = "RAS" }
+  }
+
+test Dhcpd_140.stmt_match get "match if option vendor-class-identifier=\"RAS\";" =
+  { "match"
+    { "option" = "vendor-class-identifier"
+      { "value" = "RAS" }
+    }
+  }
+
+
+test Dhcpd_140.lns get "match pick-first-value (option dhcp-client-identifier, hardware);" =
   { "match"
     { "function" = "pick-first-value"
       { "args"
@@ -344,7 +415,7 @@ test Dhcpd.lns get "match pick-first-value (option dhcp-client-identifier, hardw
     }
   }
 
-test Dhcpd.fct_args get "(16, 32, \"\", substring(hardware, 0, 4))" =
+test Dhcpd_140.fct_args get "(16, 32, \"\", substring(hardware, 0, 4))" =
   { "args"
     { "arg" = "16" }
     { "arg" = "32" }
@@ -352,7 +423,7 @@ test Dhcpd.fct_args get "(16, 32, \"\", substring(hardware, 0, 4))" =
     { "arg" = "substring(hardware, 0, 4)" }
   }
 
-test Dhcpd.stmt_match get "match if binary-to-ascii(16, 32, \"\", substring(hardware, 0, 4)) = \"1525400\";" =
+test Dhcpd_140.stmt_match get "match if binary-to-ascii(16, 32, \"\", substring(hardware, 0, 4)) = \"1525400\";" =
   { "match"
     { "function" = "binary-to-ascii"
       { "args"
@@ -365,21 +436,35 @@ test Dhcpd.stmt_match get "match if binary-to-ascii(16, 32, \"\", substring(hard
     { "value" = "1525400" }
   }
 
-test Dhcpd.lns get "subclass \"allocation-class-1\" 1:8:0:2b:4c:39:ad;" =
+test Dhcpd_140.lns get "subclass allocation-class-1 1:8:0:2b:4c:39:ad;" =
   { "subclass"
     { "name" = "allocation-class-1" }
     { "value" = "1:8:0:2b:4c:39:ad" }
   }
 
+
+test Dhcpd_140.lns get "subclass \"allocation-class-1\" 1:8:0:2b:4c:39:ad;" =
+  { "subclass"
+    { "name" = "allocation-class-1" }
+    { "value" = "1:8:0:2b:4c:39:ad" }
+  }
+
+test Dhcpd_140.lns get "subclass \"quoted class\" \"quoted value\";" =
+  { "subclass"
+    { "name" = "quoted class" }
+    { "value" = "quoted value" }
+  }
+
+
 (* overall test *)
-test Dhcpd.lns put conf after rm "/x" = conf
+test Dhcpd_140.lns put conf after rm "/x" = conf
 
 (* bug #293: primary should support argument *)
 let input293 = "zone EXAMPLE.ORG. {
   primary 127.0.0.1;
 }"
 
-test Dhcpd.lns get input293 = 
+test Dhcpd_140.lns get input293 = 
   { "zone" = "EXAMPLE.ORG."
     { "primary" = "127.0.0.1" }
   }
@@ -389,6 +474,133 @@ let input311 = "subnet 172.16.0.0 netmask 255.255.255.0 {
 filename \"pxelinux.0\";
 }"
 
-test Dhcpd.lns put "subnet 172.16.0.0 netmask 255.255.255.0 {
+test Dhcpd_140.lns put "subnet 172.16.0.0 netmask 255.255.255.0 {
 }" after
   set "subnet/filename" "pxelinux.0" = input311
+
+(* GH issue #34: support conditional structures *)
+let gh34_empty = "if exists dhcp-parameter-request-list {
+}\n"
+
+test Dhcpd_140.lns get gh34_empty =
+  { "@if" = "exists dhcp-parameter-request-list" }
+
+let gh34_empty_multi = "subnet 192.168.100.0 netmask 255.255.255.0 {
+ if true {
+ } elsif false {
+ } else {
+ }
+}\n"
+
+test Dhcpd_140.lns get gh34_empty_multi =
+  { "subnet"
+    { "network" = "192.168.100.0" }
+    { "netmask" = "255.255.255.0" }
+    { "@if" = "true"
+      { "@elsif" = "false" }
+      { "@else" } }
+  }
+
+let gh34_simple = "if exists dhcp-parameter-request-list {
+  default-lease-time 600;
+  } else {
+default-lease-time 200;
+}\n"
+
+test Dhcpd_140.lns get gh34_simple =
+  { "@if" = "exists dhcp-parameter-request-list"
+    { "default-lease-time" = "600" }
+    { "@else"
+      { "default-lease-time" = "200" } } }
+
+test Dhcpd_140.lns get "omapi-key fookey;" =
+  { "omapi-key" = "fookey" }
+
+(* almost all DHCP groups should support braces starting on the next line *)
+test Dhcpd_140.lns get "class introduction
+{
+}" =
+  { "class" = "introduction" }
+
+(* equals should work the same *)
+test Dhcpd_140.lns get "option test_records code 123 =
+                             string;" =
+ { "rfc-code"
+   { "label" = "test_records" }
+   { "code" = "123" }
+   { "type" = "string" }
+ }
+
+test Dhcpd_140.lns get "deny members of \"Are things like () allowed?\";" =
+  { "deny-members-of" = "Are things like () allowed?" }
+
+test Dhcpd_140.lns get "deny unknown clients;" =
+  { "deny" = "unknown clients" }
+test Dhcpd_140.lns get "deny known-clients;" =
+  { "deny" = "known-clients" }
+
+test Dhcpd_140.lns get "set ClientMac = binary-to-ascii(16, 8, \":\" , substring(hardware, 1, 6));" =
+  { "set" = "ClientMac"
+    { "value" = "binary-to-ascii(16, 8, \":\" , substring(hardware, 1, 6))" }
+  }
+
+test Dhcpd_140.lns get "set myvariable = foo;" =
+  { "set" = "myvariable"
+    { "value" = "foo" }
+  }
+
+test Dhcpd_140.stmt_hardware get "hardware fddi 00:01:02:03:04:05;" =
+  { "hardware"
+    { "type" = "fddi" }
+    { "address" = "00:01:02:03:04:05" }
+  }
+
+test Dhcpd_140.lns get "on commit
+{
+  set test = thing;
+}" =
+  { "on" = "commit"
+    { "set" = "test"
+      { "value" = "thing" }
+    }
+  }
+
+(* key block get/put/set test *)
+let key_tests = "key sample {
+    algorithm hmac-md5;
+    secret \"secret==\";
+}
+
+key \"interesting\" { };
+
+key \"third key\" {
+    secret \"two==\";
+}"
+
+test Dhcpd_140.lns get key_tests =
+  { "key_block" = "sample"
+    { "algorithm"  = "hmac-md5" }
+    { "secret" = "secret==" }
+  }
+  { "key_block" = "interesting" }
+  { "key_block" = "third key"
+    { "secret" = "two==" }
+  }
+
+test Dhcpd_140.lns put key_tests after set "/key_block[1]" "sample2" =
+  "key sample2 {
+    algorithm hmac-md5;
+    secret \"secret==\";
+}
+
+key \"interesting\" { };
+
+key \"third key\" {
+    secret \"two==\";
+}"
+
+test Dhcpd_140.lns get "group \"hello\" { }" =
+  { "group" = "hello" }
+
+test Dhcpd_140.lns get "class \"testing class with spaces and quotes and ()\" {}" =
+  { "class" = "testing class with spaces and quotes and ()" }

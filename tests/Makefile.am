@@ -58,6 +58,7 @@ lens_tests =			\
   lens-device_map.sh    \
   lens-dhclient.sh		\
   lens-dhcpd.sh		\
+  lens-dhcpd_140.sh		\
   lens-dns_zone.sh		\
   lens-dnsmasq.sh		\
   lens-dovecot.sh		\
