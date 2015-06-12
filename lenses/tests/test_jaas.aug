@@ -54,7 +54,6 @@ ShibUserPassAuth {
       serviceCredential = \"ldappassword\"
       ssl = \"false\"
       userField = \"uid\"
-      // Example comment within definition
       subtreeSearch = \"true\";
 };
 
@@ -64,8 +63,9 @@ NetAccountAuth {
 };
 
 com.sun.security.jgss.krb5.initiate {
-   // Test of omitted linebreaks and naked boolean
-   com.sun.security.auth.module.Krb5LoginModule required useTicketCache=true;
+   // Test of naked boolean
+   com.sun.security.auth.module.Krb5LoginModule required
+      useTicketCache=true;
 };"
 
 test Jaas.lns get conf =
@@ -89,6 +89,7 @@ test Jaas.lns get conf =
   {  }
   {  }
   { "login" = "ShibUserPassAuth"
+    {  }
     {  }
     { "#comment" = "Example LDAP authentication" }
     { "#comment" = "See: https://wiki.shibboleth.net/confluence/display/SHIB2/IdPAuthUserPass" }
@@ -116,29 +117,27 @@ test Jaas.lns get conf =
         { "serviceCredential" = "\"ldappassword\"" }
         { "ssl" = "\"false\"" }
         { "userField" = "\"uid\"" }
-        { "#comment" = "Example comment within definition" }
-        { "subtreeSearch" = "\"true\"" }
+        { "subtreeSearch" = "\"true\";" }
       }
     }
-    {  }
   }
   {  }
   {  }
   { "login" = "NetAccountAuth"
+    {  }
     { "#comment" = "Test of optionless flag" }
     { "loginModuleClass" = "nz.ac.auckland.jaas.Krb5LoginModule"
-      { "flag" = "required" }
+      { "flag" = "required;" }
     }
-    {  }
   }
   {  }
   {  }
   { "login" = "com.sun.security.jgss.krb5.initiate"
-    { "#comment" = "Test of omitted linebreaks and naked boolean" }
+    {  }
+    { "#comment" = "Test of naked boolean" }
     { "loginModuleClass" = "com.sun.security.auth.module.Krb5LoginModule"
       { "flag" = "required"
-        { "useTicketCache" = "true" }
+        { "useTicketCache" = "true;" }
       }
     }
-    {  }
   }
