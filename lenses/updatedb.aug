@@ -22,8 +22,6 @@ About: Examples
 
 module UpdateDB =
 
-autoload xfm
-
 (* View: list
      A list entry *)
 let list =
@@ -41,9 +39,3 @@ let bool = [ key "PRUNE_BIND_MOUNTS" . Sep.space_equal
 (* View: lns
      The <UpdateDB> lens *)
 let lns = (Util.empty|Util.comment|list|bool)*
-
-(* Variable: filter
-      The filter *)
-let filter = incl "/etc/updatedb.conf"
-
-let xfm = transform lns filter

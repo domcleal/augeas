@@ -41,6 +41,7 @@ let lns = (Util.empty | Util.comment | entry)*
 (* Variable: filter *)
 let filter = incl "/etc/kernel-img.conf"
            . incl "/etc/kerneloops.conf"
+           . incl "/etc/updatedb.conf"
            . incl "/etc/wgetrc"
            . incl "/etc/zabbix/*.conf"
            . incl "/etc/audit/auditd.conf"
