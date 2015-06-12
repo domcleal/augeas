@@ -182,6 +182,7 @@ lens_tests =			\
   lens-simplevars.sh	\
   lens-sip_conf.sh	    \
   lens-slapd.sh			\
+  lens-slapd_140.sh			\
   lens-smbusers.sh			\
   lens-solaris_system.sh		\
   lens-soma.sh			\

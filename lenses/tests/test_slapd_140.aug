@@ -1,4 +1,4 @@
-module Test_slapd =
+module Test_slapd_140 =
 
 let conf = "# This is the main slapd configuration file. See slapd.conf(5) for more
 # info on the configuration options.
@@ -28,7 +28,7 @@ access to attrs=userPassword,shadowLastChange
         by * none
 "
 
-test Slapd.lns get conf =
+test Slapd_140.lns get conf =
   { "#comment" = "This is the main slapd configuration file. See slapd.conf(5) for more" }
   { "#comment" = "info on the configuration options." }
   {}
@@ -48,18 +48,47 @@ test Slapd.lns get conf =
   { "database" = "hdb"
      {}
      { "#comment" = "The base of your directory in database #1" }
-     { "suffix"   = "\"dc=nodomain\"" }
+     { "suffix"   = "dc=nodomain" }
      {}
      { "access to" = "attrs=userPassword,shadowLastChange"
-        { "by"
-           { "who" = "dn=\"cn=admin,dc=nodomain\"" }
-           { "what" = "write" } }
-        { "by"
-           { "who" = "anonymous" }
-           { "what" = "auth" } }
-        { "by"
-           { "who" = "self" }
-           { "what" = "write" } }
-        { "by"
-           { "who" = "*" }
-           { "what" = "none" } } } }
+        { "by" = "dn=\"cn=admin,dc=nodomain\""
+           { "access" = "write" } }
+        { "by" = "anonymous"
+           { "access" = "auth" } }
+        { "by" = "self"
+           { "access" = "write" } }
+        { "by" = "*"
+           { "access" = "none" } } } }
+
+(* Test: Slapd_140.lns
+     Full access test with who/access/control *)
+test Slapd_140.lns get "access to dn.subtree=\"dc=example,dc=com\"
+  by self write stop\n" =
+  { "access to" = "dn.subtree=\"dc=example,dc=com\""
+    { "by" = "self"
+      { "access" = "write" }
+      { "control" = "stop" } } }
+
+(* Test: Slapd_140.lns
+     access test with who *)
+test Slapd_140.lns get "access to dn.subtree=\"dc=example,dc=com\"
+  by self\n" =
+  { "access to" = "dn.subtree=\"dc=example,dc=com\""
+    { "by" = "self" } }
+
+(* Test: Slapd_140.lns
+     access test with who/access *)
+test Slapd_140.lns get "access to dn.subtree=\"dc=example,dc=com\"
+  by self write\n" =
+  { "access to" = "dn.subtree=\"dc=example,dc=com\""
+    { "by" = "self"
+      { "access" = "write" } } }
+
+(* Test: Slapd_140.lns
+     access test with who/control *)
+test Slapd_140.lns get "access to dn.subtree=\"dc=example,dc=com\"
+  by self stop\n" =
+  { "access to" = "dn.subtree=\"dc=example,dc=com\""
+    { "by" = "self"
+      { "control" = "stop" } } }
+
