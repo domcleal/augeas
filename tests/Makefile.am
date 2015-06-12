@@ -189,6 +189,7 @@ lens_tests =			\
   lens-squid.sh			\
   lens-ssh.sh			\
   lens-sshd.sh			\
+  lens-sshd_140.sh			\
   lens-sssd.sh			\
   lens-stunnel.sh			\
   lens-subversion.sh		\
