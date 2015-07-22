@@ -488,10 +488,15 @@ void free_pathx(struct pathx *pathx) {
 /*
  * Nodeset helpers
  */
-static struct nodeset *make_nodeset(struct state *state) {
+static struct nodeset *make_nodeset(size_t size, struct state *state) {
     struct nodeset *result;
     if (ALLOC(result) < 0)
         STATE_ENOMEM;
+    if (size) {
+        if (ALLOC_N(result->nodes, size) < 0)
+            STATE_ENOMEM;
+        result->size = size;
+    }
     return result;
 }
 
@@ -1164,7 +1169,7 @@ static struct nodeset * ns_filter(struct nodeset *ns, struct pred *predicates,
     uint old_ctx_len = state->ctx_len;
     uint old_ctx_pos = state->ctx_pos;
 
-    struct nodeset *new_ns = make_nodeset(state);
+    struct nodeset *new_ns = make_nodeset(ns->used, state);
     RET0_ON_ERROR;
 
     state->ctx_len = ns->used;
@@ -1210,11 +1215,9 @@ static void ns_from_locpath(struct locpath *lp, uint *maxns,
         STATE_ERROR(state, PATHX_ENOMEM);
         goto error;
     }
-    for (int i=0; i <= *maxns; i++) {
-        (*ns)[i] = make_nodeset(state);
-        if (HAS_ERROR(state))
-            goto error;
-    }
+    (*ns)[0] = make_nodeset(1, state);
+    if (HAS_ERROR(state))
+        goto error;
 
     if (root == NULL) {
         struct step *first_step = NULL;
@@ -1235,18 +1238,21 @@ static void ns_from_locpath(struct locpath *lp, uint *maxns,
     uint cur_ns = 0;
     list_for_each(step, lp->steps) {
         struct nodeset *work = (*ns)[cur_ns];
-        struct nodeset *next = (*ns)[cur_ns + 1];
+        struct nodeset *next = make_nodeset(work->used, state);
+        if (HAS_ERROR(state))
+            goto error;
         for (int i=0; i < work->used; i++) {
             for (struct tree *node = step_first(step, work->nodes[i]);
                  node != NULL;
                  node = step_next(step, work->nodes[i], node))
                 ns_add(next, node, state);
         }
-        next = ns_filter(next, step->predicates, state);
+        (*ns)[cur_ns + 1] = ns_filter(next, step->predicates, state);
         if (HAS_ERROR(state))
             goto error;
-        if (next) {
-            FREE((*ns)[cur_ns + 1]);
+        if ((*ns)[cur_ns + 1]) {
+            FREE(next);
+        } else {
             (*ns)[cur_ns + 1] = next;
         }
         cur_ns += 1;
