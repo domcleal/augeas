@@ -1155,33 +1155,40 @@ static void ns_remove(struct nodeset *ns, int ind) {
 /*
  * Remove all nodes from NS for which one of PRED is false
  */
-static void ns_filter(struct nodeset *ns, struct pred *predicates,
-                      struct state *state) {
+static struct nodeset * ns_filter(struct nodeset *ns, struct pred *predicates,
+                                  struct state *state) {
     if (predicates == NULL)
-        return;
+        return NULL;
 
     struct tree *old_ctx = state->ctx;
     uint old_ctx_len = state->ctx_len;
     uint old_ctx_pos = state->ctx_pos;
 
-    for (int p=0; p < predicates->nexpr; p++) {
-        state->ctx_len = ns->used;
-        state->ctx_pos = 1;
-        for (int i=0; i < ns->used; state->ctx_pos++) {
-            state->ctx = ns->nodes[i];
-            bool match = eval_pred(predicates->exprs[p], state);
-            RET_ON_ERROR;
-            if (match) {
-                i+=1;
-            } else {
-                ns_remove(ns, i);
-            }
+    struct nodeset *new_ns = make_nodeset(state);
+    RET0_ON_ERROR;
+
+    state->ctx_len = ns->used;
+    state->ctx_pos = 1;
+    for (int i=0; i < ns->used; i++, state->ctx_pos++) {
+        state->ctx = ns->nodes[i];
+
+        bool match = true;
+        for (int p=0; p < predicates->nexpr; p++) {
+            match = eval_pred(predicates->exprs[p], state);
+            RET0_ON_ERROR;
+            if (!match)
+                break;
         }
+
+        if (match)
+            ns_add(new_ns, ns->nodes[i], state);
     }
 
     state->ctx = old_ctx;
     state->ctx_pos = old_ctx_pos;
     state->ctx_len = old_ctx_len;
+
+    return new_ns;
 }
 
 /* Return an array of nodesets, one for each step in the locpath.
@@ -1235,9 +1242,13 @@ static void ns_from_locpath(struct locpath *lp, uint *maxns,
                  node = step_next(step, work->nodes[i], node))
                 ns_add(next, node, state);
         }
-        ns_filter(next, step->predicates, state);
+        next = ns_filter(next, step->predicates, state);
         if (HAS_ERROR(state))
             goto error;
+        if (next) {
+            FREE((*ns)[cur_ns + 1]);
+            (*ns)[cur_ns + 1] = next;
+        }
         cur_ns += 1;
     }
 
@@ -1268,7 +1279,11 @@ static void eval_filter(struct expr *expr, struct state *state) {
         value_ind_t primary_ind = pop_value_ind(state);
         struct value *primary = state->value_pool + primary_ind;
         assert(primary->tag == T_NODESET);
-        ns_filter(primary->nodeset, expr->predicates, state);
+        struct nodeset *new_ns = ns_filter(primary->nodeset, expr->predicates, state);
+        if (new_ns) {
+            FREE(primary->nodeset);
+            primary->nodeset = new_ns;
+        }
         /* Evaluating predicates might have reallocated the value_pool */
         primary = state->value_pool + primary_ind;
         ns_from_locpath(lp, &maxns, &ns, primary->nodeset, state);
