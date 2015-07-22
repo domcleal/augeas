@@ -23,7 +23,7 @@ module NagiosObjects =
     let eol = Util.eol
     let ws  = Sep.space
 
-    let keyword      = key /[A-Za-z0-9_]+/
+    let keyword      = /[A-Za-z0-9_]+/
 
     (* optional, but preferred, whitespace *)
     let opt_ws = del Rx.opt_space " "
@@ -36,14 +36,14 @@ module NagiosObjects =
 
     (* define a field *)
     let object_field    =
-       let field_name      = keyword in
+       let field_name      = key keyword in
        let field_value     = store Rx.space_in in
           [ Util.indent . field_name . ws
                         . field_value . eol ]
 
     (* define an object *)
     let object_def  =
-       let object_type = keyword in
+       let object_type = seq "objs" . [ label "type" . store keyword ] in
           [ Util.indent
           . Util.del_str "define" . ws
           . object_type . opt_ws
