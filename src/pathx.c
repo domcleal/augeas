@@ -488,10 +488,15 @@ void free_pathx(struct pathx *pathx) {
 /*
  * Nodeset helpers
  */
-static struct nodeset *make_nodeset(struct state *state) {
+static struct nodeset *make_nodeset(size_t size, struct state *state) {
     struct nodeset *result;
     if (ALLOC(result) < 0)
         STATE_ENOMEM;
+    if (size) {
+        if (ALLOC_N(result->nodes, size) < 0)
+            STATE_ENOMEM;
+        result->size = size;
+    }
     return result;
 }
 
@@ -1164,7 +1169,7 @@ static struct nodeset * ns_filter(struct nodeset *ns, struct pred *predicates,
     uint old_ctx_len = state->ctx_len;
     uint old_ctx_pos = state->ctx_pos;
 
-    struct nodeset *new_ns = make_nodeset(state);
+    struct nodeset *new_ns = make_nodeset(ns->used, state);
     RET0_ON_ERROR;
 
     state->ctx_len = ns->used;
@@ -1211,7 +1216,7 @@ static void ns_from_locpath(struct locpath *lp, uint *maxns,
         goto error;
     }
     for (int i=0; i <= *maxns; i++) {
-        (*ns)[i] = make_nodeset(state);
+        (*ns)[i] = make_nodeset(0, state);
         if (HAS_ERROR(state))
             goto error;
     }
