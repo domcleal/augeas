@@ -497,9 +497,6 @@ static struct nodeset *make_nodeset(struct state *state) {
 
 static void ns_add(struct nodeset *ns, struct tree *node,
                    struct state *state) {
-    for (int i=0; i < ns->used; i++)
-        if (ns->nodes[i] == node)
-            return;
     if (ns->used >= ns->size) {
         size_t size = 2 * ns->size;
         if (size < 10) size = 10;
@@ -509,6 +506,17 @@ static void ns_add(struct nodeset *ns, struct tree *node,
     }
     ns->nodes[ns->used] = node;
     ns->used += 1;
+}
+
+/*
+ * Add NODE to NS unless it's already present
+ */
+static void ns_add_dedupe(struct nodeset *ns, struct tree *node,
+                          struct state *state) {
+    for (int i=0; i < ns->used; i++)
+        if (ns->nodes[i] == node)
+            return;
+    ns_add(ns, node, state);
 }
 
 static struct nodeset *
@@ -1002,7 +1010,7 @@ static void eval_union(struct state *state) {
     res = clone_nodeset(l->nodeset, state);
     RET_ON_ERROR;
     for (int i=0; i < r->nodeset->used; i++) {
-        ns_add(res, r->nodeset->nodes[i], state);
+        ns_add_dedupe(res, r->nodeset->nodes[i], state);
         RET_ON_ERROR;
     }
     state->value_pool[vind].nodeset = res;
