@@ -1244,8 +1244,22 @@ static void ns_from_locpath(struct locpath *lp, uint *maxns,
         for (int i=0; i < work->used; i++) {
             for (struct tree *node = step_first(step, work->nodes[i]);
                  node != NULL;
-                 node = step_next(step, work->nodes[i], node))
-                ns_add(next, node, state);
+                 node = step_next(step, work->nodes[i], node)) {
+                if (step->predicates) {
+                    bool match = true;
+                    for (int p=0; p < step->predicates->nexpr; p++) {
+                        match = eval_pred(step->predicates->exprs[p], state);
+                        if (HAS_ERROR(state))
+                            goto error;
+                        if (!match)
+                            break;
+                    }
+                    if (match)
+                        ns_add(next, node, state);
+                } else {
+                    ns_add(next, node, state);
+                }
+            }
         }
         (*ns)[cur_ns + 1] = ns_filter(next, step->predicates, state);
         if (HAS_ERROR(state))
